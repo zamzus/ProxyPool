@@ -6,8 +6,7 @@ def is_valid_proxy(data):
     check this string is within proxy format
     """
     if data.__contains__(':'):
-        ip = data.split(':')[0]
-        port = data.split(':')[1]
+        ip, port = data.split('://')[-1].split(':')
         return is_ip_valid(ip) and is_port_valid(port)
     else:
         return is_ip_valid(data)
@@ -47,10 +46,13 @@ def convert_proxy_or_proxies(data):
         for item in data:
             # skip invalid item
             item = item.strip()
-            if not is_valid_proxy(item): continue
-            host, port = item.split(':')
-            result.append(Proxy(host=host, port=int(port)))
+            if not is_valid_proxy(item):
+                continue
+            scheme = item.split('://')[0]
+            host, port = item.split('://')[-1].split(':')
+            result.append(Proxy(scheme=scheme, host=host, port=int(port)))
         return result
     if isinstance(data, str) and is_valid_proxy(data):
-        host, port = data.split(':')
-        return Proxy(host=host, port=int(port))
+        scheme = data.split('://')[0]
+        host, port = data.split('://')[-1].split(':')
+        return Proxy(scheme=scheme, host=host, port=int(port))

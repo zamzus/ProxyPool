@@ -1,7 +1,7 @@
 from retrying import RetryError, retry
 import requests
 from loguru import logger
-from proxypool.setting import GET_TIMEOUT
+from proxypool.settings import GET_TIMEOUT
 from fake_headers import Headers
 import time
 
@@ -20,8 +20,11 @@ class BaseCrawler(object):
             if response.status_code == 200:
                 response.encoding = 'utf-8'
                 return response.text
-        except (requests.ConnectionError, requests.ReadTimeout):
+        except (requests.ConnectionError, requests.exceptions.ReadTimeout):
             return
+
+    def parse(self, html):
+        raise NotImplementedError('{}.parse method is not defined'.format(self.__class__.__name__))
 
     def process(self, html, url):
         """
@@ -46,4 +49,4 @@ class BaseCrawler(object):
         except RetryError:
             logger.error(
                 f'crawler {self} crawled proxy unsuccessfully, '
-                'please check if target url is valid or network issue')
+                f'please check if target url is valid or network issue')

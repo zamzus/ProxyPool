@@ -1,7 +1,7 @@
 from loguru import logger
 from proxypool.storages.redis import RedisClient
-from proxypool.setting import PROXY_NUMBER_MAX
-from proxypool.crawlers import __all__ as crawlers_cls
+from proxypool.settings import PROXY_NUMBER_MAX
+from proxypool.crawlers import crawlers_cls
 
 
 class Getter(object):

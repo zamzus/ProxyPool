@@ -1,28 +1,29 @@
+from pyquery import PyQuery
 from proxypool.schemas.proxy import Proxy
 from proxypool.crawlers.base import BaseCrawler
-from pyquery import PyQuery as pq
 
-BaseUrl = 'http://www.taiyanghttp.com/free/page{num}'
-MAX_PAGE = 3
+BASE_URL = 'http://www.taiyanghttp.com/free/page{num}'
 
 
 class TaiyangdailiCrawler(BaseCrawler):
     """
     taiyangdaili crawler, http://www.taiyanghttp.com/free/
     """
-    urls = [BaseUrl.format(num=i) for i in range(1, 6)]
+    urls = [BASE_URL.format(num=i) for i in range(1, 6)]
 
     def parse(self, html):
         """
         parse html file to get proxies
         :return:
         """
-        doc = pq(html)
-        trs = doc('#ip_list .tr.ip_tr').items()
-        for tr in trs:
-            host = tr.find('div:nth-child(1)').text()
-            port = tr.find('div:nth-child(2)').text()
-            yield Proxy(host=host, port=port)
+        doc = PyQuery(html)
+        for node in doc('#ip_list .tr.ip_tr').items():
+            scheme = node.find('div:nth-child(6)').text().lower()
+            host = node.find('div:nth-child(1)').text()
+            port = node.find('div:nth-child(2)').text()
+            yield Proxy(scheme=scheme, host=host, port=port)
+            if scheme == 'https':
+                yield Proxy(scheme='http', host=host, port=port)
 
 
 if __name__ == '__main__':

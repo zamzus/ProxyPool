@@ -1,29 +1,29 @@
+from pyquery import PyQuery
 from proxypool.crawlers.base import BaseCrawler
 from proxypool.schemas.proxy import Proxy
-import re
 
-
-MAX_PAGE = 3
-BASE_URL = 'http://www.ip3366.net/free/?stype={stype}&page={page}'
+BASE_URL = 'http://www.ip3366.net/free/?stype=1&page={page}'
 
 
 class IP3366Crawler(BaseCrawler):
     """
     ip3366 crawler, http://www.ip3366.net/
     """
-    urls = [BASE_URL.format(stype=stype,page=i) for stype in range(1,3) for i in range(1, 8)]
+    urls = [BASE_URL.format(page=i) for i in range(1, 5)]
     
     def parse(self, html):
         """
         parse html file to get proxies
         :return:
         """
-        ip_address = re.compile('<tr>\s*<td>(.*?)</td>\s*<td>(.*?)</td>')
-        # \s * 匹配空格，起到换行作用
-        re_ip_address = ip_address.findall(html)
-        for address, port in re_ip_address:
-            proxy = Proxy(host=address.strip(), port=int(port.strip()))
-            yield proxy
+        doc = PyQuery(html)
+        for item in doc('table tbody tr').items():
+            scheme = item.find('td:nth-child(4)').text().lower()
+            host = item.find('td:nth-child(1)').text()
+            port = item.find('td:nth-child(2)').text()
+            yield Proxy(scheme=scheme, host=host, port=port)
+            if scheme == 'https':
+                yield Proxy(scheme='http', host=host, port=port)
 
 
 if __name__ == '__main__':
