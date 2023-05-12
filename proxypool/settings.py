@@ -1,8 +1,8 @@
-import platforms
+import platform
 from myserver import MAPPING_REDIS_CONFIG, KEY_PROXIES
 
 # definition of flags
-IS_WINDOWS = platforms.system().lower() == 'windows'
+IS_WINDOWS = platform.system().lower() == 'windows'
 
 # redis configure
 REDIS_CONFIG = MAPPING_REDIS_CONFIG['NDDC'].copy()
